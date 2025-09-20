@@ -20,10 +20,10 @@ export default function App() {
       return;
     }
     try {
-      const response = await fetch('http://127.0.0.1:5000/parse', {
+      const response = await fetch('http://127.0.0.1:5000/parse-log', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ food_log: foodLog }),
+        body: JSON.stringify({ foodLog: foodLog }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -88,12 +88,17 @@ export default function App() {
               <ul>
                 {parsedItems.map((item, idx) => (
                   <li key={idx}>
-                    {item.food} — {item.calories} cal
+                    <div>
+                      <strong>{item.item}</strong> — {item.quantity}
+                    </div>
+                    <div>
+                      Total Calories: {item.total_calories} | Calories Eaten Today: {item.calories_today}
+                    </div>
                   </li>
                 ))}
               </ul>
               <div style={{ marginTop: 8, fontWeight: 'bold' }}>
-                Total Calories: {calories}
+                Total Calories (all foods): {calories}
               </div>
             </div>
           )}
