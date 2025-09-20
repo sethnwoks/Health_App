@@ -1,0 +1,91 @@
+import React, { useState } from 'react';
+
+// Main App component that renders the entire application.
+// This is a functional component, which is a modern way to write React components.
+export default function App() {
+  const [foodLog, setFoodLog] = useState('');
+  const [message, setMessage] = useState('');
+
+  // This function handles the button click event.
+  // It takes the text from the textarea and simulates parsing it.
+  const handleParse = () => {
+    if (foodLog.trim() === '') {
+      setMessage('Please paste your food log first.');
+    } else {
+      // In a real application, you would send this data to a backend for parsing.
+      // For this demo, we'll just show a success message.
+      setMessage('Food log submitted successfully!');
+    }
+  };
+
+  return (
+    // The main container for the entire page.
+    // Tailwind classes are used here for styling.
+    // 'min-h-screen' ensures the container takes up at least the full viewport height.
+    <div className="bg-gray-100 min-h-screen flex flex-col font-sans text-gray-800">
+
+      {/* The header section. */}
+      {/* 'sticky top-0' makes the header stay at the top of the page when you scroll. */}
+      <header className="bg-amber-400 text-gray-900 shadow-md p-4 sticky top-0 z-10">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="font-bold text-2xl">NaijaCal</div>
+          <nav>
+            {/* Navigation links. */}
+            <ul className="flex space-x-4">
+              {['Home', 'Dashboard', 'PasteParse', 'Weekly', 'Chat', 'Admin'].map((item) => (
+                // 'rounded-md' gives the buttons a nice curved corner.
+                // 'hover:bg-amber-500' is a hover effect that changes the background color when the user's mouse is on the button.
+                <li key={item}>
+                  <a href="#" className={`py-2 px-3 rounded-md transition-colors duration-200 ${item === 'PasteParse' ? 'bg-amber-600 text-white' : 'hover:bg-amber-500'}`}>
+                    {item}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </header>
+
+      {/* Main content area. */}
+      {/* 'flex-grow' ensures this section takes up all available space. */}
+      <main className="flex-grow container mx-auto p-8 flex items-center justify-center">
+        {/* The card for the 'Paste & Parse' section. */}
+        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg text-center">
+          <h1 className="text-3xl font-bold mb-6">Paste & Parse Food Log</h1>
+          
+          {/* The textarea where the user pastes their food log. */}
+          {/* 'resize-none' prevents the user from resizing the textarea. */}
+          <textarea
+            value={foodLog}
+            onChange={(e) => setFoodLog(e.target.value)}
+            className="w-full h-48 p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+            placeholder="Paste your food log here..."
+          ></textarea>
+          
+          {/* The "Parse" button. */}
+          <button
+            onClick={handleParse}
+            className="mt-6 px-8 py-3 bg-amber-500 text-white font-semibold rounded-md shadow-md hover:bg-amber-600 transition-colors duration-200"
+          >
+            Parse
+          </button>
+          
+          {/* Message display area. */}
+          {message && (
+            <p className="mt-4 text-green-600 font-medium">{message}</p>
+          )}
+        </div>
+      </main>
+
+      {/* Footer section. */}
+      <footer className="bg-gray-800 text-gray-300 py-4 text-center">
+        <div className="container mx-auto">
+          © 2025 NaijaCal. For demo only.
+        </div>
+      </footer>
+      
+      {/* Script to load Tailwind CSS */}
+      <script src="https://cdn.tailwindcss.com"></script>
+    </div>
+  );
+}
