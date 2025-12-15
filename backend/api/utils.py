@@ -1,15 +1,6 @@
 import re
-from flask import Flask, request, jsonify
-from flask_cors import CORS
 from fractions import Fraction
 
-# The Flask app instance. This is our server.
-app = Flask(__name__)
-# Enable CORS for all routes. This lets your React app talk to the Flask server.
-CORS(app)
-
-# This is a placeholder for your food calorie database.
-# In a real application, you would connect to a proper database like PostgreSQL.
 # Calorie values are rough estimates for demonstration purposes only.
 CALORIE_DATABASE = {
     # Swallows & Staples
@@ -113,6 +104,10 @@ UNITS = {
     'plate': 250,
     'bowl': 350,
     'derica': 450,  # Approximate grams in a derica cup
+    'g': 1,
+    'gram': 1,
+    'grams': 1,
+    'ml': 1,
 }
 
 def parse_food_log(log_text):
@@ -173,12 +168,10 @@ def parse_food_log(log_text):
                         break
 
                 # Get the calories from our database.
-                calories_per_unit = list(CALORIE_DATABASE[food_item].values())[0]
+                calories_per_unit = CALORIE_DATABASE[food_item]['calories_per_100g']
 
                 # Final calculation.
                 calories = calories_per_unit * quantity * unit_factor
-                total_calories += calories
-
                 # Check if the user mentioned a fraction of what they ate today.
                 daily_fraction = 1.0
                 if 'today' in entry:
@@ -197,6 +190,7 @@ def parse_food_log(log_text):
                                 pass # Use the default 1.0 if we can't parse it.
 
                 calories_today = calories * daily_fraction
+                total_calories += calories_today
                 
                 parsed_items.append({
                     "item": food_item,
@@ -206,40 +200,3 @@ def parse_food_log(log_text):
                 })
     
     return parsed_items, round(total_calories, 2)
-
-# The API endpoint for parsing the food log.
-@app.route('/parse-log', methods=['POST'])
-def parse_log():
-    """
-    Handles POST requests to the /parse-log endpoint.
-    Expects a JSON payload with a 'foodLog' key.
-    """
-    try:
-        data = request.get_json()
-        if not data or 'foodLog' not in data:
-            return jsonify({"error": "Invalid request. 'foodLog' key is missing."}), 400
-
-        food_log = data['foodLog']
-
-        # Call the new, more powerful calorie calculation function.
-        parsed_items, total_calories = parse_food_log(food_log)
-
-        print(f"Received food log: {food_log[:50]}...")
-        print(f"Parsed items: {parsed_items}")
-        print(f"Total calories: {total_calories}")
-
-        return jsonify({
-            "status": "success",
-            "message": "Food log processed and calories calculated.",
-            "parsed_items": parsed_items,
-            "total_calories": total_calories
-        }), 200
-
-    except Exception as e:
-        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
-
-# This is the standard entry point for running the Flask app.
-# It ensures the server only runs when you execute this script directly.
-if __name__ == '__main__':
-    # 'debug=True' is for development only. NEVER use this in production.
-    app.run(debug=True)
