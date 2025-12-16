@@ -1,6 +1,7 @@
 import os
 from google import genai
 from google.genai import types
+from api.models import Food
 from dotenv import load_dotenv
 
 # Calorie values are rough estimates for demonstration purposes only.
@@ -119,7 +120,7 @@ load_dotenv()
 
 def lookup_food_calories(food_name: str, quantity: float, unit: str = None) -> dict:
     """
-    Calculates calories for a specific food item.
+    Calculates calories for a specific food item by querying the database.
     
     Args:
         food_name: The name of the food (e.g., 'eba', 'rice').
@@ -133,21 +134,17 @@ def lookup_food_calories(food_name: str, quantity: float, unit: str = None) -> d
     food_name = food_name.lower().strip()
     
     # Try exact match first
-    if food_name in CALORIE_DATABASE:
-        matched_food = food_name
-    else:
+    try:
+        food = Food.objects.get(name=food_name)
+    except Food.DoesNotExist:
         # Fall back to fuzzy match (partial matching)
-        matched_food = None
-        for item in CALORIE_DATABASE.keys():
-            if item in food_name or food_name in item:
-                matched_food = item
-                break
-            
-    if not matched_food:
+        food = Food.objects.filter(name__icontains=food_name).first()
+    
+    if not food:
         return {"error": f"Food '{food_name}' not found in database."}
         
     # Get base calories (per 100g/ml)
-    calories_per_100g = CALORIE_DATABASE[matched_food]['calories_per_100g']
+    calories_per_100g = food.calories_per_100g
     
     # Calculate Unit Factor
     unit_factor = 1.0 # Default to 100g if no unit
@@ -166,7 +163,7 @@ def lookup_food_calories(food_name: str, quantity: float, unit: str = None) -> d
     total_calories = calories_per_100g * quantity * unit_factor
     
     return {
-        "item": matched_food,
+        "item": food.name,
         "quantity": f"{quantity} {unit if unit else 'g'}",
         "total_calories": round(total_calories, 2),
         "calories_today": round(total_calories, 2) # Assuming full portion for now, can add fraction logic later
