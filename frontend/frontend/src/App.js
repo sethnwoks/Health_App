@@ -10,6 +10,7 @@ export default function App() {
   const [message, setMessage] = useState('');
   const [calories, setCalories] = useState(null);
   const [parsedItems, setParsedItems] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // This function handles the button click event.
   // It takes the text from the textarea and simulates parsing it.
@@ -17,8 +18,11 @@ export default function App() {
     setMessage('');
     setCalories(null);
     setParsedItems([]);
+    setLoading(true); // Add this
+    
     if (foodLog.trim() === '') {
       setMessage('Please paste your food log first.');
+      setLoading(false); // Add this
       return;
     }
     try {
@@ -37,6 +41,8 @@ export default function App() {
       }
     } catch (err) {
       setMessage('Could not connect to backend.');
+    } finally {
+      setLoading(false); // Add this
     }
   };
 
@@ -87,10 +93,19 @@ export default function App() {
             <button
               onClick={handleParse}
               className="parse-btn"
+              disabled={loading}
             >
-              Parse
+              {loading ? 'Parsing...' : 'Parse'}
             </button>
-            {message && (
+            
+            {loading && (
+              <div style={{ textAlign: 'center', marginTop: 16 }}>
+                <div className="spinner"></div>
+                <p>Processing your food log...</p>
+              </div>
+            )}
+            
+            {message && !loading && (
               <div className="message">{message}</div>
             )}
             {parsedItems.length > 0 && (
