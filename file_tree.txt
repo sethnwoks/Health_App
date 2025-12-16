@@ -1,0 +1,66 @@
+.
+├── backend
+│   ├── api
+│   │   ├── management
+│   │   │   ├── commands
+│   │   │   │   └── __pycache__
+│   │   │   │       ├── __init__.cpython-312.pyc
+│   │   │   │       └── populate_foods.cpython-312.pyc
+│   │   │   └── __pycache__
+│   │   │       └── __init__.cpython-312.pyc
+│   │   ├── migrations
+│   │   │   └── __pycache__
+│   │   │       ├── 0001_initial.cpython-312.pyc
+│   │   │       └── __init__.cpython-312.pyc
+│   │   └── __pycache__
+│   │       ├── admin.cpython-312.pyc
+│   │       ├── apps.cpython-312.pyc
+│   │       ├── __init__.cpython-312.pyc
+│   │       ├── models.cpython-312.pyc
+│   │       ├── urls.cpython-312.pyc
+│   │       ├── utils.cpython-312.pyc
+│   │       └── views.cpython-312.pyc
+│   ├── app.py
+│   ├── core
+│   │   └── __pycache__
+│   │       ├── __init__.cpython-312.pyc
+│   │       ├── settings.cpython-312.pyc
+│   │       ├── urls.cpython-312.pyc
+│   │       └── wsgi.cpython-312.pyc
+│   ├── db.sqlite3
+│   ├── .env
+│   └── requirements.txt
+├── backend_flask_backup
+│   ├── app.py
+│   └── requirements.txt
+├── file_tree.txt
+├── frontend
+│   ├── frontend
+│   │   ├── .env
+│   │   ├── .gitignore
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── public
+│   │   │   ├── favicon.ico
+│   │   │   ├── index.html
+│   │   │   ├── logo192.png
+│   │   │   ├── logo512.png
+│   │   │   ├── manifest.json
+│   │   │   └── robots.txt
+│   │   ├── README.md
+│   │   └── src
+│   │       ├── App.css
+│   │       ├── App.js
+│   │       ├── App.test.js
+│   │       ├── HerbalFacts.js
+│   │       ├── index.css
+│   │       ├── index.js
+│   │       ├── logo.svg
+│   │       ├── reportWebVitals.js
+│   │       └── setupTests.js
+│   └── index.html
+├── .gitignore
+├── LICENSE
+└── README.md
+
+17 directories, 47 files
