@@ -1,5 +1,7 @@
-import re
-from fractions import Fraction
+import os
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
 
 # Calorie values are rough estimates for demonstration purposes only.
 CALORIE_DATABASE = {
@@ -110,93 +112,146 @@ UNITS = {
     'ml': 1,
 }
 
+
+load_dotenv()
+
+# ... (CALORIE_DATABASE and UNITS remain the same, I will reference them) ...
+
+def lookup_food_calories(food_name: str, quantity: float, unit: str = None) -> dict:
+    """
+    Calculates calories for a specific food item.
+    
+    Args:
+        food_name: The name of the food (e.g., 'eba', 'rice').
+        quantity: The amount eaten.
+        unit: The unit of measurement (e.g., 'cup', 'gram', 'plate').
+    
+    Returns:
+        Dictionary with calorie details or error.
+    """
+    # Normalize input
+    food_name = food_name.lower().strip()
+    
+    # Try exact match first
+    if food_name in CALORIE_DATABASE:
+        matched_food = food_name
+    else:
+        # Fall back to fuzzy match (partial matching)
+        matched_food = None
+        for item in CALORIE_DATABASE.keys():
+            if item in food_name or food_name in item:
+                matched_food = item
+                break
+            
+    if not matched_food:
+        return {"error": f"Food '{food_name}' not found in database."}
+        
+    # Get base calories (per 100g/ml)
+    calories_per_100g = CALORIE_DATABASE[matched_food]['calories_per_100g']
+    
+    # Calculate Unit Factor
+    unit_factor = 1.0 # Default to 100g if no unit
+    if unit:
+        unit = unit.lower().strip()
+        # Check exact match first
+        if unit in UNITS:
+            unit_factor = UNITS[unit] / 100
+        else:
+            # Check partial match
+            for u_key, u_val in UNITS.items():
+                if u_key in unit:
+                    unit_factor = u_val / 100
+                    break
+    
+    total_calories = calories_per_100g * quantity * unit_factor
+    
+    return {
+        "item": matched_food,
+        "quantity": f"{quantity} {unit if unit else 'g'}",
+        "total_calories": round(total_calories, 2),
+        "calories_today": round(total_calories, 2) # Assuming full portion for now, can add fraction logic later
+    }
+
 def parse_food_log(log_text):
     """
-    Parses a food log using a more advanced rule-based NLP approach.
-    This function handles quantities, fractions, units, and food items.
-    It returns a list of dictionaries with parsed data.
+    Uses OpenAI to parse the food log and call the lookup tool.
     """
-    # Normalize the text to lower case to make matching easier.
-    log_text = log_text.lower()
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("DEBUG: No OPENAI_API_KEY found!")
+        return [], 0
+        
+    from openai import OpenAI
+    client = OpenAI(api_key=api_key)
+    
+    # Define the tool in OpenAI format
+    tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": "lookup_food_calories",
+                "description": "Calculates calories for a specific food item",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "food_name": {
+                            "type": "string",
+                            "description": "The name of the food (e.g., 'eba', 'rice')"
+                        },
+                        "quantity": {
+                            "type": "number",
+                            "description": "The amount eaten"
+                        },
+                        "unit": {
+                            "type": "string",
+                            "description": "The unit of measurement (e.g., 'cup', 'gram', 'plate')"
+                        }
+                    },
+                    "required": ["food_name", "quantity"]
+                }
+            }
+        }
+    ]
     
     parsed_items = []
     total_calories = 0
-
-    # Split the log into separate entries based on newlines or common separators.
-    entries = re.split(r'\n|,| and ', log_text)
-
-    for entry in entries:
-        # A simple check to find quantities and their food items.
-        # This regex is a bit smarter now to handle more cases.
-        match = re.search(r'(\d+(?:\s?[-/]\s?\d+)?|' + '|'.join(NUMBER_WORDS.keys()) + r')\s+([a-zA-Z\s]+)', entry)
-        
-        if match:
-            # Get the quantity and the raw food item string.
-            quantity_str, food_item_str = match.groups()
-
-            # Convert the quantity string to a number.
-            quantity = 0
-            if '/' in quantity_str:
-                quantity = float(Fraction(quantity_str))
-            elif '-' in quantity_str:
-                # Handle "1-3rd" by just getting the fraction. This is a simplification.
-                parts = quantity_str.split('-')
-                if parts[1] == '3rd':
-                    quantity = 1/3
-            elif quantity_str in NUMBER_WORDS:
-                quantity = NUMBER_WORDS[quantity_str]
-            else:
-                try:
-                    quantity = float(quantity_str)
-                except (ValueError, TypeError):
-                    continue # Skip if we can't parse the number.
-
-            # Find the best match for the food item in our database.
-            # This is a simple fuzzy match; we check for the longest matching item first.
-            food_item = None
-            for item in sorted(CALORIE_DATABASE.keys(), key=len, reverse=True):
-                if item in food_item_str:
-                    food_item = item
-                    break
-
-            if food_item:
-                # Find the unit and calculate the calorie value.
-                unit_factor = 1.0
-                for unit_word, factor in UNITS.items():
-                    if unit_word in food_item_str:
-                        unit_factor = factor / 100 # Assuming base is per 100g/ml
-                        break
-
-                # Get the calories from our database.
-                calories_per_unit = CALORIE_DATABASE[food_item]['calories_per_100g']
-
-                # Final calculation.
-                calories = calories_per_unit * quantity * unit_factor
-                # Check if the user mentioned a fraction of what they ate today.
-                daily_fraction = 1.0
-                if 'today' in entry:
-                    # A very simple rule: if "today" is mentioned, look for a fraction.
-                    fraction_match = re.search(r'(\d+/\d+|one-third|one third|one half)', entry)
-                    if fraction_match:
-                        fraction_str = fraction_match.group(1)
-                        if 'third' in fraction_str:
-                            daily_fraction = 1/3
-                        elif 'half' in fraction_str or '1/2' in fraction_str:
-                            daily_fraction = 0.5
-                        else:
-                            try:
-                                daily_fraction = float(Fraction(fraction_str))
-                            except ValueError:
-                                pass # Use the default 1.0 if we can't parse it.
-
-                calories_today = calories * daily_fraction
-                total_calories += calories_today
-                
-                parsed_items.append({
-                    "item": food_item,
-                    "quantity": f"{quantity} {food_item_str}",
-                    "total_calories": round(calories, 2),
-                    "calories_today": round(calories_today, 2),
-                })
     
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a nutrition assistant. Extract food items, quantities, and units from the user's text. Call the 'lookup_food_calories' function for EACH food item found."},
+                {"role": "user", "content": log_text}
+            ],
+            tools=tools,
+            tool_choice="auto"
+        )
+        
+        message = response.choices[0].message
+        
+        print(f"DEBUG: OpenAI Response: {message.content}")
+        
+        # Check if there are tool calls
+        if message.tool_calls:
+            print(f"DEBUG: Function calls found: {len(message.tool_calls)}")
+            for tool_call in message.tool_calls:
+                print(f"DEBUG: Calling tool: {tool_call.function.name} with args: {tool_call.function.arguments}")
+                if tool_call.function.name == 'lookup_food_calories':
+                    import json
+                    args = json.loads(tool_call.function.arguments)
+                    result = lookup_food_calories(
+                        food_name=args.get('food_name'),
+                        quantity=args.get('quantity'),
+                        unit=args.get('unit')
+                    )
+                    print(f"DEBUG: Tool Result: {result}")
+                    
+                    if 'error' not in result:
+                        parsed_items.append(result)
+                        total_calories += result['total_calories']
+                        
+    except Exception as e:
+        print(f"OpenAI Error: {e}")
+        pass
+
     return parsed_items, round(total_calories, 2)
