@@ -10,6 +10,7 @@ export default function App() {
   const [message, setMessage] = useState('');
   const [calories, setCalories] = useState(null);
   const [parsedItems, setParsedItems] = useState([]);
+  const [loading, setLoading] = useState(false); // Add this
 
   // This function handles the button click event.
   // It takes the text from the textarea and simulates parsing it.
@@ -17,8 +18,11 @@ export default function App() {
     setMessage('');
     setCalories(null);
     setParsedItems([]);
+    setLoading(true); // Start loading
+    
     if (foodLog.trim() === '') {
       setMessage('Please paste your food log first.');
+      setLoading(false); // Stop loading
       return;
     }
     try {
@@ -37,6 +41,8 @@ export default function App() {
       }
     } catch (err) {
       setMessage('Could not connect to backend.');
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -83,17 +89,28 @@ export default function App() {
               onChange={(e) => setFoodLog(e.target.value)}
               className="food-textarea"
               placeholder="Paste your food log here..."
+              disabled={loading} // Disable textarea while loading
             />
             <button
               onClick={handleParse}
               className="parse-btn"
+              disabled={loading} // Disable button while loading
             >
-              Parse
+              {loading ? 'Parsing...' : 'Parse'} {/* Show different text */}
             </button>
-            {message && (
+            
+            {/* Loading Spinner */}
+            {loading && (
+              <div style={{ textAlign: 'center', marginTop: 16 }}>
+                <div className="spinner"></div>
+                <p>Processing your food log...</p>
+              </div>
+            )}
+            
+            {message && !loading && (
               <div className="message">{message}</div>
             )}
-            {parsedItems.length > 0 && (
+            {parsedItems.length > 0 && !loading && (
               <div style={{ marginTop: 16, textAlign: 'left' }}>
                 <strong>Detected foods:</strong>
                 <ul>
