@@ -37,10 +37,10 @@ Snacks: Puff puff and zobo
 ### Backend
 - **Django 5.0** - Python web framework
 - **Django REST Framework** - RESTful API
-- **OpenAI GPT-4** - Natural language processing
-- **PostgreSQL** - Production database (Supabase)
-- **JWT Authentication** - Secure user sessions
-- **Rate Limiting** - API usage control
+- **OpenAI GPT-4o-mini** - Natural language processing
+- **PostgreSQL (Supabase)** - Primary database
+- **SimpleJWT** - Authentication
+- **UptimeRobot** - Keep-alive monitoring
 
 ### Frontend  
 - **React 19** - UI framework
@@ -48,9 +48,10 @@ Snacks: Puff puff and zobo
 - **localStorage** - Token persistence
 
 ### Infrastructure
-- **Docker** - Containerization
-- **Render** - Backend hosting
-- **Vercel** - Frontend hosting (planned)
+- **Docker & Docker Compose** - Local development
+- **Render** - Web hosting (Backend + Frontend)
+- **Supabase** - Managed PostgreSQL Database
+- **UptimeRobot** - Prevents free tier hibernation
 
 ## 🚀 Quick Start
 
@@ -126,13 +127,14 @@ docker-compose up --build
 OPENAI_API_KEY=your_openai_api_key_here
 SECRET_KEY=your-django-secret-key
 
-# Database (for production)
-DATABASE_URL=postgresql://user:password@host:5432/dbname
+# Database (Supabase)
+# IMPORTANT: Use the Session Pooler URL (Port 6543) for IPv4 compatibility on Render
+DATABASE_URL=postgresql://postgres.[REF]:[PASS]@aws-0-[REGION].pooler.supabase.com:6543/postgres
 
 # Optional
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1,.onrender.com
-CORS_ALLOWED_ORIGINS=http://localhost:3000
+DEBUG=False
+ALLOWED_HOSTS=.onrender.com,localhost
+CORS_ALLOWED_ORIGINS=https://health-app-frontend1.onrender.com
 ```
 
 ### Frontend (`.env`)
