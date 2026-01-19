@@ -12,7 +12,7 @@
 
 NaijaCal helps Nigerians track their daily calorie intake with a focus on local foods. Just paste what you ate in natural language - the AI handles the rest.
 
-**Live Demo:** https://your-app.onrender.com *(⚠️ First load takes ~30s - free tier limitation)*
+**Live Demo:** https://health-app-4.onrender.com *(⚠️ First load takes ~30s - free tier limitation)*
 
 **Example:**
 ```
@@ -346,8 +346,6 @@ MIT License - see [LICENSE](LICENSE) file
 
 **Seth Nwokolo**
 - GitHub: [@sethnwoks](https://github.com/sethnwoks)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Portfolio: [Coming soon]
 
 ## 🙏 Acknowledgments
 
