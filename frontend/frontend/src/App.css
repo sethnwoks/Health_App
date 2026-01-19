@@ -32,6 +32,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -100,17 +101,28 @@
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
-  padding: 40px 32px 32px 32px;
+  padding: 40px 48px;
   width: 100%;
-  max-width: 420px;
+  max-width: 550px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .card-title {
   font-size: 1.7rem;
   font-weight: bold;
   color: #ffa726;
-  margin-bottom: 18px;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .food-textarea {
@@ -179,6 +191,7 @@
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

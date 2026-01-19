@@ -92,6 +92,24 @@ CALORIE_DATABASE = {
     'carrot': {'calories_per_100g': 41, 'unit': 'g'},
     'cucumber': {'calories_per_100g': 16, 'unit': 'g'},
     'lettuce': {'calories_per_100g': 15, 'unit': 'g'},
+    # Common additions
+    'egg': {'calories_per_100g': 155, 'unit': 'g'},
+    'eggs': {'calories_per_100g': 155, 'unit': 'g'},
+    'bread': {'calories_per_100g': 266, 'unit': 'g'},
+    'rice': {'calories_per_100g': 130, 'unit': 'g'},
+    'pasta': {'calories_per_100g': 131, 'unit': 'g'},
+    'spaghetti': {'calories_per_100g': 158, 'unit': 'g'},
+    'noodles': {'calories_per_100g': 138, 'unit': 'g'},
+    'indomie': {'calories_per_100g': 448, 'unit': 'g'},
+    'plantain': {'calories_per_100g': 122, 'unit': 'g'},
+    'akara': {'calories_per_100g': 350, 'unit': 'g'},
+    'puff puff': {'calories_per_100g': 400, 'unit': 'g'},
+    'meat pie': {'calories_per_100g': 350, 'unit': 'g'},
+    'shawarma': {'calories_per_100g': 250, 'unit': 'g'},
+    'pizza': {'calories_per_100g': 266, 'unit': 'g'},
+    'milk': {'calories_per_100g': 61, 'unit': 'ml'},
+    'coke': {'calories_per_100g': 42, 'unit': 'ml'},
+    'water': {'calories_per_100g': 0, 'unit': 'ml'},
 }
 
 # A simple "database" for text-to-number conversion.
